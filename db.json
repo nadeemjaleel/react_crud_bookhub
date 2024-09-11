@@ -1,0 +1,70 @@
+{
+  "users": [
+    {
+      "name": "habibi",
+      "email": "habib2i@gamil.com",
+      "id": 1
+    },
+    {
+      "name": "havibi",
+      "email": "havibi@gamil.com",
+      "id": 2
+    },
+    {
+      "name": "sulaimanikka",
+      "email": "sulaimanikka@gmail.com",
+      "CreatedAt": "2024-09-09",
+      "id": 3
+    }
+  ],
+  "books": [
+    {
+      "id": 1,
+      "name": "A Good Girl's Guide to Murder",
+      "author": "Holly Jackson",
+      "isbn": "978-1-4052-9318-1"
+    },
+    {
+      "id": 2,
+      "name": "SHATTER ME",
+      "author": "Tahereh Mafi",
+      "isbn": "978-0-60-358065-9",
+      "CreatedAt": "2024-09-09"
+    },
+    {
+      "id": 3,
+      "name": "IKIGAI",
+      "author": "Hector Carcia And Francesc Miralles",
+      "isbn": "978-1-786-33089-5",
+      "CreatedAt": "2024-09-09"
+    },
+    {
+      "name": "Peril At End House",
+      "author": "Agatha Chirstie",
+      "isbn": "978-0-00-812952-1",
+      "CreatedAt": "2024-09-09",
+      "id": 4
+    },
+    {
+      "name": "Atomic Habits",
+      "author": "James Clear",
+      "isbn": "978-1-784-70537-4",
+      "CreatedAt": "2024-09-09",
+      "id": 5
+    },
+    {
+      "name": "Verity",
+      "author": "Colleen Hoover",
+      "isbn": "978-1-4087-2660-0",
+      "CreatedAt": "2024-09-09",
+      "id": 6
+    },
+    {
+      "name": "UNRAVEL ME",
+      "author": "Tahereh Mafi",
+      "isbn": "978-0-60-358066-6",
+      "CreatedAt": "2024-09-09",
+      "id": 7
+    }
+  ]
+}
