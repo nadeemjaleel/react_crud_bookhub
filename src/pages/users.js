@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from "react";
+import { TablePagination, TextField } from "@mui/material";
+import "./app.css";
 
 
 export function Users() {
@@ -22,68 +24,105 @@ export function Users() {
 
 function UsersList(props) {
     const [users, setUsers] = useState([]);
+    const [inputText, setInputText] = useState("");
+    const [currentPage, setCurrentPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
-    function fetchUsers() {
-        fetch("http://localhost:3004/users")
-        .then((response) => {
-           if(!response.ok) {
-                throw new Error("Unexpected Server Response");
-           } 
-           return response.json()
-        })
-        .then((data) => { 
-            //console.log(data);
-            setUsers(data);
-        })
-        .catch((error) => console.log("Error: ", error));
+    let inputHandler = (e) => {
+        var lowerCase = e.target.value.toLowerCase();
+        setInputText(lowerCase);
     }
 
-    //fetchUsers();
+    const fetchUsers = () => {
+        fetch("http://localhost:3004/users")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Unexpected Server Response");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setUsers(data);
+            })
+            .catch((error) => console.log("Error: ", error));
+    };
+
     useEffect(() => fetchUsers(), []);
 
-    function deleteUsers(id) {
+    const filteredUsers = users.filter((user) => {
+        return (
+            user.name.toLowerCase().includes(inputText) ||
+            user.email.toLowerCase().includes(inputText)
+        );
+    });
+
+    const paginatedUsers = filteredUsers.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setCurrentPage(0); // Reset to first page when changing rows per page
+    };
+
+    const deleteUsers = (id) => {
         fetch("http://localhost:3004/users/" + id, {
-            method: "DELETE"
+            method: "DELETE",
         })
             .then((response) => response.json())
-            .then((data) => fetchUsers());
-    }
+            .then(() => fetchUsers());
+    };
 
     return (
         <>
-        <h2 className="text-center mb-3">List of Users</h2>
-        <button onClick={() => props.showForm({})} type="button" className="btn btn-primary me-2">Create</button>
-        <button onClick={() => fetchUsers()} type="button" className="btn btn-outline-primary me-2">Refresh</button>
-        <table className="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Id</th>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    users.map((user, index) => {
-                        return (
-                            <tr key={index}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.id}</td>
-                                <td style={{width: "10px", whiteSpace: "nowrap"}}>
-                                    <button onClick={() => props.showForm(user)} type="button" className="btn btn-primary btn-sm me-2">Edit</button>
-                                    <button onClick={() => deleteUsers(user.id)} type="button" className="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                        )
-                    })
-                }
-            </tbody>
-        </table>
+            <h2 className="text-center mb-3">List of Users</h2>
+            <TextField
+                id="outlined-basic"
+                onChange={inputHandler}
+                variant="outlined"
+                fullWidth
+                label="Search"
+                style={{ marginBottom: '20px' }}
+            />
+            <button onClick={() => props.showForm({})} type="button" className="btn btn-primary me-2">Create</button>
+            <button onClick={() => fetchUsers()} type="button" className="btn btn-outline-primary me-2">Refresh</button>
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {paginatedUsers.map((user) => (
+                        <tr key={user.id}>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.id}</td>
+                            <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                                <button onClick={() => props.showForm(user)} type="button" className="btn btn-primary btn-sm me-2">Edit</button>
+                                <button onClick={() => deleteUsers(user.id)} type="button" className="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredUsers.length}
+                rowsPerPage={rowsPerPage}
+                page={currentPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
         </>
-    )
+    );
 }
-
 function UsersForm(props) {
     const [errorMessage, setErrorMessage] = useState("");
 

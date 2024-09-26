@@ -1,9 +1,11 @@
+import { TablePagination, TextField } from "@mui/material";
 import React, {useEffect, useState} from "react";
+import "./app.css";
 
 
 export function Home() {
     const [content, setCountent] = useState(<BooksList showForm={showForm} />);
-
+    
     function showList() {
         setCountent(<BooksList showForm={showForm} />);
     }
@@ -22,6 +24,15 @@ export function Home() {
 
 function BooksList(props) {
     const [books, setBooks] = useState([]);
+    const [inputText, setInputText] = useState("");
+    const [currentPage, setCurrentPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    let inputHandler = (e) => {
+        var lowerCase = e.target.value.toLowerCase();
+        setInputText(lowerCase);
+    }
+    
 
     function fetchBooks() {
         fetch("http://localhost:3004/books")
@@ -41,6 +52,31 @@ function BooksList(props) {
     //fetchUsers();
     useEffect(() => fetchBooks(), []);
 
+    const filteredBooks = books.filter((book) => {
+        if (props.input === '') {
+            return true;
+        }
+        else {
+            return (
+                book.name.toLowerCase().includes(inputText) ||
+                book.author.toLowerCase().includes(inputText) ||
+                book.isbn.toLowerCase().includes(inputText)
+            );
+            
+        }
+    })
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setCurrentPage(0);
+    }
+
+    const paginatedBooks = filteredBooks.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage);
+
     function deleteBooks(id) {
         fetch("http://localhost:3004/books/" + id, {
             method: "DELETE"
@@ -52,6 +88,15 @@ function BooksList(props) {
     return (
         <>
         <h2 className="text-center mb-3">List of Books</h2>
+        <div className="search">
+            <TextField 
+                id="outlined-basic"
+                onChange={inputHandler}
+                variant="outlined"
+                fullWidth
+                label="Search" 
+            /> 
+        </div>
         <button onClick={() => props.showForm({})} type="button" className="btn btn-primary me-2">Create</button>
         <button onClick={() => fetchBooks()} type="button" className="btn btn-outline-primary me-2">Refresh</button>
         <table className="table">
@@ -64,10 +109,8 @@ function BooksList(props) {
                 </tr>
             </thead>
             <tbody>
-                {
-                    books.map((book, index) => {
-                        return (
-                            <tr key={index}>
+                {paginatedBooks.map((book) => (
+                            <tr key={book.id}>
                                 <td>{book.id}</td>
                                 <td>{book.name}</td>
                                 <td>{book.author}</td>
@@ -77,11 +120,18 @@ function BooksList(props) {
                                     <button onClick={() => deleteBooks(book.id)} type="button" className="btn btn-danger btn-sm">Delete</button>
                                 </td>
                             </tr>
-                        )
-                    })
-                }
+                        ))}
             </tbody>
         </table>
+        <TablePagination
+        rowsPerPageOptions={[5,10,25]}
+        component="div"
+        count={filteredBooks.length}
+        rowsPerPage={rowsPerPage}
+        page={currentPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        />
         </>
     )   
 }
